@@ -9,20 +9,20 @@ which establishes connections concurrently instead of serially.
 Normally, if your domain name resolves to multiple A records, you see something
 like this:
 
-  $ host google.com
-  google.com has address 173.194.37.70
-  google.com has address 173.194.37.67
-  google.com has address 173.194.37.78
-  google.com has address 173.194.37.73
-  google.com has address 173.194.37.71
-  google.com has address 173.194.37.66
-  google.com has address 173.194.37.64
-  google.com has address 173.194.37.72
-  google.com has address 173.194.37.69
-  google.com has address 173.194.37.68
-  google.com has address 173.194.37.65
-  google.com has IPv6 address 2607:f8b0:4002:802::1004
-  ...
+    $ host google.com
+    google.com has address 173.194.37.70
+    google.com has address 173.194.37.67
+    google.com has address 173.194.37.78
+    google.com has address 173.194.37.73
+    google.com has address 173.194.37.71
+    google.com has address 173.194.37.66
+    google.com has address 173.194.37.64
+    google.com has address 173.194.37.72
+    google.com has address 173.194.37.69
+    google.com has address 173.194.37.68
+    google.com has address 173.194.37.65
+    google.com has IPv6 address 2607:f8b0:4002:802::1004
+    ...
 
 The order of addresses is typically randomized by your libc resolver.
 
