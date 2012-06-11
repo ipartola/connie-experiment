@@ -1,9 +1,10 @@
 
-import socket, select, httplib, struct
+import socket, select, struct, time
         
 l_onoff = 1
 l_linger = 0
 LINGER_OPT_VAL = struct.pack('ii', l_onoff, l_linger)
+TIMEOUT_FACTOR = 0.100
 
 def tuple_result(func):
     def wrapper(*args, **kwargs):
@@ -47,37 +48,43 @@ def make_sockets(sockdefs, source_addr):
         raise e
 
     return result
+    
+def _timeout_func(i):
+    return (i + 1) * TIMEOUT_FACTOR
 
-def connect(host, port, conn_timeout, io_timeout, family=socket.AF_UNSPEC, socktype=socket.SOCK_STREAM, proto=0, flags=0, source_addr=None):
+def _connect(host, port, conn_timeout, family=socket.AF_UNSPEC, socktype=socket.SOCK_STREAM, proto=0, flags=0, source_addr=None):
     sockdefs = get_sockdefs(host, port, family, socktype, proto, flags)
     sock_addrs = make_sockets(sockdefs, source_addr)
     
     socks = sock_addrs.keys()
+    socks_by_fd = dict((s.fileno(), s) for s in socks)
 
-    r, w, e = select.select(socks, socks, socks, conn_timeout)
-    if len(w) < 1:
+    sock, i = None, 0
+    ep = select.epoll()
+
+    for s in socks:
+        ep.register(s, select.EPOLLOUT)
+
+    start_time = time.time()
+    while not sock:
+        if time.time() - start_time > conn_timeout:
+            break
+
+        timeout = _timeout_func(i)
+        w = ep.poll(timeout=timeout, maxevents=1)
+        if len(w) > 0:
+            fd, event = w[0]
+            if event == select.EPOLLOUT:
+                sock = socks_by_fd[fd]
+
+    if not sock:
         raise Exception('Could not connect: all %d attempted hosts timed out.' % len(socks))
 
-    sock = w[0]
     sock.setblocking(1)
-    sock.settimeout(io_timeout)
     [s.close() for s in socks if s != sock]
     return sock, sock_addrs[sock]
 
-class ConnieHTTPConnection(httplib.HTTPConnection):
-
-    def connect(self):
-        self.sock, remote_addr = connect(self.host, self.port,
-            self.timeout, self.timeout, source_addr=self.source_address)
-
-        if self._tunnel_host:
-            self._tunnel()
-
-if __name__ == '__main__':
-    http = ConnieHTTPConnection('narod.ru', 80, timeout=1.0)
-    http.connect()
-
-    http.request('GET', '/')
-    resp = http.getresponse()
-    print resp.read()
+def connect(host, port, timeout=None, source_addr=None):
+    sock, remote_addr = _connect(host, port, timeout, source_addr=source_addr)
+    return sock
 

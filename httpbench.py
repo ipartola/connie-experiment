@@ -1,7 +1,9 @@
 
 import time
-from connie import ConnieHTTPConnection
+from http import ConnieHTTPConnection
 from httplib import HTTPConnection
+
+from stats import measure, stats
 
 def fetch(cls, host, port, path):
     http = cls(host, port, timeout=1.0)
@@ -27,7 +29,7 @@ def stats(times):
 def main():
     ROUNDS = 10
     CLASSES = [ConnieHTTPConnection, HTTPConnection, ]
-    HOSTS = ['google.com', 'apple.com', 'bing.com', 'yandex.ru', 'rambler.ru', ]
+    HOSTS = ['google.com', 'apple.com', 'bing.com', 'yandex.ru', 'rambler.ru', 'narod.ru', 'maps.google.com', 'google.ca',]
 
     for cls in CLASSES:
         times = []
