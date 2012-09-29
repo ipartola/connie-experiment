@@ -4,7 +4,8 @@ import time
 def measure(func, *args, **kwargs):
     s = time.time()
     func(*args, **kwargs)
-    return time.time() - s
+    t = time.time() - s
+    return t
 
 def stats(times):
     total = sum(times)

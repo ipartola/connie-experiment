@@ -1,11 +1,11 @@
 
 import httplib
-from connie import connect
+from connie import connie_connect
 
 class ConnieHTTPConnection(httplib.HTTPConnection):
 
     def connect(self):
-        self.sock = connect(self.host, self.port, self.timeout, self.source_address)
+        self.sock = connie_connect(self.host, self.port, self.timeout, self.source_address)
 
         if self._tunnel_host:
             self._tunnel()
