@@ -1,6 +1,15 @@
 
 import httplib
-from connie import connie_connect
+from connie import connie_connect, cached_dns_connect
+
+class CachedDNSHTTPConnection(httplib.HTTPConnection):
+    """An HTTP Connectoin class that uses connie_connect."""
+
+    def connect(self):
+        self.sock = cached_dns_connect(self.host, self.port, self.timeout, self.source_address)
+
+        if self._tunnel_host:
+            self._tunnel()
 
 class ConnieHTTPConnection(httplib.HTTPConnection):
     """An HTTP Connectoin class that uses connie_connect."""

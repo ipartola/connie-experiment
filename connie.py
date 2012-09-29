@@ -119,8 +119,10 @@ def _get_random_addr(host, port):
     addrs = socket.getaddrinfo(host, port)
     return random.choice(addrs)[-1]
 
-def plain_connect(host, port, timeout):
+def cached_dns_connect(host, port, timeout, source_addr=None):
     """Performs a plain socket.connect to a random IP of the given (host, port).
+
+    The DNS resolution of (host, port) is cached in memory.
     """
 
     addr = _get_random_addr(host, port)
@@ -129,6 +131,10 @@ def plain_connect(host, port, timeout):
     else:
         s = socket.socket(family=socket.AF_INET)
 
+    if source_addr:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(source_addr)
+        
     s.settimeout(timeout)
     s.connect(addr)
     return s

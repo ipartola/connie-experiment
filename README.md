@@ -1,8 +1,10 @@
 
 # Connie experiment
 
-This project is an experimental implementation of Python's httplib.HTTPConnection
-which establishes connections concurrently instead of serially.
+This project is an experimental implementation of a TCP connector which attempts
+to make multiple simultaneous connections to the target host (one per A/AAAA record).
+
+The first connection to succeed is returned, while others are closed.
 
 ## Typical implementation
 
@@ -33,7 +35,7 @@ will try the next one, but this happens after a long timeout.
 ## Connie's way
 
 In an attempt to speed this up, Connie's implementation tries to connect to
-all the addresses at once, and then uses a select() call to determine which
+all the addresses at once, and then uses an epoll() call to determine which
 connection succeeded. It then closes all other connections and continues
 talking to the address that responded first.
 
@@ -42,9 +44,8 @@ servers is down it will never be blindly selected as before. Second, we can bet
 that the server to complete the TCP handshake first is likely also
 geographically closer and faster than the rest.
 
-Included with the project is bench.py which can be used to measure the effect
-of using the httplib implementation vs the Connie one. Run it for yourself to
-see the results.
+Included with the project are two benchmark files which can be used to measure the effect
+of using the connie connect implementations against the built-in connect implementation.
 
 ## Prototype only
 
@@ -52,3 +53,4 @@ This code is prototype-only. For one, you'll run out of file descriptors
 much more quickly with a scheme like this. For another, none of this has been
 tested in production. In other words, feel free to use it for fun, but proceed
 with caution when using for profit.
+

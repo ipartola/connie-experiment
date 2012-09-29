@@ -1,5 +1,5 @@
 
-from http import ConnieHTTPConnection
+from http import ConnieHTTPConnection, CachedDNSHTTPConnection
 from httplib import HTTPConnection
 
 from stats import measure, stats
@@ -18,6 +18,7 @@ def fetch(cls, host, port, path):
 def main():
     CLASSES = [
         ConnieHTTPConnection,
+        CachedDNSHTTPConnection,
         HTTPConnection,
     ]
 

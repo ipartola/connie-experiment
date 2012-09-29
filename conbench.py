@@ -1,6 +1,6 @@
 
-from connie import connie_connect as _connie_connect, plain_connect as _plain_connect
-import random
+from connie import connie_connect as _connie_connect, cached_dns_connect as _cached_dns_connect
+import random, socket
 
 from stats import measure, stats
 from bench import ROUNDS, HOSTS
@@ -8,12 +8,19 @@ from bench import ROUNDS, HOSTS
 def connie_connect(host, port, timeout):
     _connie_connect(host, port, timeout).close()
 
+def cached_dns_connect(host, port, timeout):
+    _cached_dns_connect(host, port, timeout).close()
+
 def plain_connect(host, port, timeout):
-    _plain_connect(host, port, timeout).close()
+    s = socket.socket()
+    s.settimeout(timeout)
+    s.connect((host, port))
+    s.close()
 
 def main():
     FUNCTIONS = (
         connie_connect,
+        cached_dns_connect,
         plain_connect,
     )
 
