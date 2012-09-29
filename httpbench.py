@@ -1,5 +1,5 @@
 
-from connie import ConnieHTTPConnection
+from http import ConnieHTTPConnection
 from httplib import HTTPConnection
 
 from stats import measure, stats

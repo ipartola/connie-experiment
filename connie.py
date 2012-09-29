@@ -1,5 +1,5 @@
 
-import socket, select, time, random, httplib
+import socket, select, time, random
 
 from cache import Cache
 
@@ -112,7 +112,7 @@ def connie_connect(host, port, timeout=None, source_addr=None):
 # We cache the result of this function to prevent DNS slowdowns from
 # affecting the benchmark results
 @cache.cached
-def get_random_addr(host, port):
+def _get_random_addr(host, port):
     """Returns a random IP address for a given host."""
 
     socket.getaddrinfo(host, port)
@@ -123,7 +123,7 @@ def plain_connect(host, port, timeout):
     """Performs a plain socket.connect to a random IP of the given (host, port).
     """
 
-    addr = get_random_addr(host, port)
+    addr = _get_random_addr(host, port)
     if len(addr) == 4:
         s = socket.socket(family=socket.AF_INET6)
     else:
@@ -132,13 +132,4 @@ def plain_connect(host, port, timeout):
     s.settimeout(timeout)
     s.connect(addr)
     return s
-
-class ConnieHTTPConnection(httplib.HTTPConnection):
-    """An HTTP Connectoin class that uses connie_connect."""
-
-    def connect(self):
-        self.sock = connie_connect(self.host, self.port, self.timeout, self.source_address)
-
-        if self._tunnel_host:
-            self._tunnel()
 
