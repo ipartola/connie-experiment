@@ -1,5 +1,5 @@
 
-ROUNDS = 5
+ROUNDS = 50
 HOSTS = ['google.com', 'apple.com', 'yandex.ru', 'facebook.com', 'maps.google.com', 'google.cn',]
 
 import time, random, socket
