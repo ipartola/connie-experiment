@@ -2,11 +2,10 @@
 from http import ConnieHTTPConnection, CachedDNSHTTPConnection
 from httplib import HTTPConnection
 
-from bench import ROUNDS, HOSTS, measure, stats
-import random, socket
+from bench import run_experiment
 
-def fetch(cls, host, port, path):
-    http = cls(host, port, timeout=1.0)
+def fetch(cls, host, port, timeout):
+    http = cls(host, port, timeout=timeout)
     http.connect()
 
     http.request('GET', '/')
@@ -14,29 +13,23 @@ def fetch(cls, host, port, path):
     resp.read()
     http.close()
 
+def connie_fetch(host, port, timeout):
+    fetch(ConnieHTTPConnection, host, port, timeout)
+
+def cached_dns_fetch(host, port, timeout):
+    fetch(CachedDNSHTTPConnection, host, port, timeout)
+
+def plain_fetch(host, port, timeout):
+    fetch(HTTPConnection, host, port, timeout)
+
 def main():
-    CLASSES = [
-        ConnieHTTPConnection,
-        CachedDNSHTTPConnection,
-        HTTPConnection,
+    FUNCTIONS = [
+        connie_fetch,
+        cached_dns_fetch,
+        plain_fetch,
     ]
 
-    for cls in CLASSES:
-        times = []
-        x = 0
-        while x < ROUNDS*len(HOSTS):
-            host = random.choice(HOSTS)
-            try:
-                times.append(measure(fetch, cls, host, 80, '/'))
-                x += 1
-            except socket.error, e:
-                if e.errno == 101:
-                    pass # Network unreachable could be due to lack of IPv6. Ignore it, but only in benchmarks
-                else:
-                    print e
-            except Exception, e:
-                print e
-        print '%s: count %d, total %0.4f, per call: %0.4f, std dev: %0.4f' % tuple([cls.__name__] + list(stats(times)))
+    run_experiment(FUNCTIONS)
 
 if __name__ == '__main__':
     main()
