@@ -6,7 +6,7 @@ class CachedDNSHTTPConnection(httplib.HTTPConnection):
     """An HTTP Connectoin class that uses connie_connect."""
 
     def connect(self):
-        self.sock = cached_dns_connect(self.host, self.port, self.timeout, self.source_address)
+        self.sock = cached_dns_connect(self.host, self.port, self.timeout, getattr(self, 'source_address', None))
 
         if self._tunnel_host:
             self._tunnel()
@@ -15,7 +15,7 @@ class ConnieHTTPConnection(httplib.HTTPConnection):
     """An HTTP Connectoin class that uses connie_connect."""
 
     def connect(self):
-        self.sock = connie_connect(self.host, self.port, self.timeout, self.source_address)
+        self.sock = connie_connect(self.host, self.port, self.timeout, getattr(self, 'source_address', None))
 
         if self._tunnel_host:
             self._tunnel()
